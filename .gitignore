@@ -1,2 +1,6 @@
 *.a
 *.so
+obj
+bin
+*.make
+Makefile
