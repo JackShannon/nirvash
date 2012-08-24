@@ -10,7 +10,6 @@ void start_video(void *data)
 
 	// wait for the window to be created.
 	while(ng->windows.empty());
-//		tthread::this_thread::sleep_for(tthread::chrono::milliseconds(2));
 
 	w = ng->windows[0];
 
@@ -54,10 +53,9 @@ void init_game(Nepgear::State *ng)
 	}
 	w.Create(f);
 
-	{
-		Nepgear::LockGuard<Nepgear::Mutex>::type hold(ng->lock);
-		ng->windows.push_back(&w);
-	}
+	ng->lock.lock();
+	ng->windows.push_back(&w);
+	ng->lock.unlock();
 	
 	while (ng->running)
 	{
