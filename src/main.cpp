@@ -43,8 +43,6 @@ void start_audio(void *data)
 
 void init_game(Nepgear::State *ng)
 {
-	glfwInit();
-
 	Nepgear::Window w;
 	Nepgear::WindowFlags f;
 	{
@@ -81,6 +79,8 @@ void init_game(Nepgear::State *ng)
 int main()
 {
 	Nepgear::State ng;
+
+	glfwInit();
 
 	ng.threads["video"] = new Nepgear::Thread(start_video, (void*)&ng);
 	ng.threads["audio"] = new Nepgear::Thread(start_audio, (void*)&ng);
