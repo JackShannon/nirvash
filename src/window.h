@@ -25,6 +25,7 @@ namespace Nepgear
 		void Create(WindowFlags flags);
 		void Destroy();
 		void MakeCurrent();
+		void ClearCurrent();
 
 		//void Resize(glm::vec2);
 

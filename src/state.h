@@ -2,7 +2,9 @@
 #define _NEPGEAR_STATE_H_
 
 #include "thread.h"
+#include "window.h"
 #include <map>
+#include <vector>
 
 // Nepgear/state.h
 namespace Nepgear
@@ -14,20 +16,7 @@ namespace Nepgear
 		Mutex lock;
 		
 		std::map<std::string, Thread*> threads;
-
-		int wait()
-		{
-			auto it = threads.begin();
-			for ( ; it != threads.end(); ++it)
-			{
-				if (!it->second)
-					continue;
-				it->second->join();
-				delete it->second;
-			}
-
-			return 0;
-		}
+		std::vector<Window*> windows;
 		
 		bool running;
 	};

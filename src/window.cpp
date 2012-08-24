@@ -4,20 +4,26 @@
 // Nepgear/window.cpp
 namespace Nepgear
 {
+	/* these may be better as static or something, since they don't respect
+	 * objects but instead are thread-bound. */
 	void Window::MakeCurrent()
 	{
 		glfwMakeContextCurrent((GLFWwindow)m_handle);
+	}
+
+	void Window::ClearCurrent()
+	{
+		glfwMakeContextCurrent(NULL);
 	}
 	
 	WindowHandle Window::GetHandle()
 	{
 		return m_handle;
 	}
-
+	
 	void Window::Create(WindowFlags flags)
 	{
 		int mode = (flags.mode == WindowFlags::FullScreen) ? GLFW_FULLSCREEN : GLFW_WINDOWED;
-		glfwInit();
 
 		if (flags.gl_major >= 3)
 		{
@@ -36,7 +42,7 @@ namespace Nepgear
 			flags.width, flags.height,
 			mode, "", (GLFWwindow)flags.homie
 		);
-		MakeCurrent();
+		glfwSetWindowUserPointer(m_handle, this);
 	}
 
 	void Window::Destroy()

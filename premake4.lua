@@ -4,6 +4,9 @@ configurations { "Debug", "Release" }
 configuration "Debug"
 	targetsuffix "-d"
 
+configuration { "linux", "gmake", "Debug" }
+	buildoptions { "-ggdb" }
+
 project "TinyThread++"
 	targetname "tinythread++"
 	targetdir "bin"
@@ -77,3 +80,6 @@ project "Nepgear"
 
 	configuration { "linux", "gmake" }
 		buildoptions { "-std=c++0x", "-Wall", "-pedantic" }
+
+	configuration { "linux", "gmake", "Debug" }
+		buildoptions { "-ggdb" }
