@@ -3,8 +3,6 @@
 #include "window.h"
 #include <GL/glfw3.h>
 
-Nepgear::Mutex m;
-
 void start_video(void *data)
 {
 	Nepgear::State *ng = (Nepgear::State*)data;
