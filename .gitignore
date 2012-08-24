@@ -4,3 +4,4 @@ obj
 bin
 *.make
 Makefile
+lib/glfw/src/config.h
