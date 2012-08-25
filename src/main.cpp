@@ -2,11 +2,163 @@
 #include "state.h"
 #include "window.h"
 #include <GL/glfw3.h>
+#include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+struct ThreadStatus {
+	ThreadStatus() : done(false), data(NULL) {}
+	bool done;
+	void *data;
+};
+
+void ai_to_glm_mat4(glm::mat4 *out, aiMatrix4x4 in)
+{
+	(*out)[0] = glm::vec4(in.a1, in.a2, in.a3, in.a4);
+	(*out)[1] = glm::vec4(in.b1, in.b2, in.b3, in.b4);
+	(*out)[2] = glm::vec4(in.c1, in.c2, in.c3, in.c4);
+	(*out)[3] = glm::vec4(in.d1, in.d2, in.d3, in.d4);
+}
+
+void ai_to_glm_vec2(glm::vec2 *out, aiVector2t<float> in)
+{
+	out->x = in.x;
+	out->y = in.y;
+}
+
+void ai_to_glm_vec3(glm::vec3 *out, aiVector3t<float> in)
+{
+	out->x = in.x;
+	out->y = in.y;
+	out->z = in.z;
+}
+
+void ai_to_glm_vec4(glm::vec4 *out, aiColor4t<float> in)
+{
+	out->r = in.r;
+	out->g = in.g;
+	out->b = in.b;
+	out->a = in.a;
+}
+
+namespace Nepgear
+{
+	struct Vertex
+	{
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec3 tex_coords;
+		glm::vec4 color;
+	};
+
+	struct Mesh
+	{
+		Mesh() : depth(0) {}
+
+		int material_id;
+
+		std::vector<Vertex> points;
+		std::vector<Vertex> lines;
+		std::vector<Vertex> triangles;
+
+		glm::mat4 xform;
+
+		Mesh *parent;
+		std::vector<Mesh> children;
+
+		int depth;
+	};
+}
+
+void recursive_load(Nepgear::Mesh *current, const struct aiScene *sc, const struct aiNode* nd)
+{
+	current->depth++;
+//	printf("depth: %d\n", current->depth);
+	ai_to_glm_mat4(&current->xform, nd->mTransformation);
+	
+	for (unsigned n = 0; n < nd->mNumMeshes; ++n)
+	{
+		const struct aiMesh* mesh = sc->mMeshes[nd->mMeshes[n]];
+
+		Nepgear::Mesh m;
+		m.material_id = mesh->mMaterialIndex;
+
+		printf("faces: %d\n", mesh->mNumFaces);
+
+		for (unsigned t = 0; t < mesh->mNumFaces; ++t) {
+			const struct aiFace* face = &mesh->mFaces[t];
+
+			for(unsigned i = 0; i < face->mNumIndices; i++)
+			{
+				int idx = face->mIndices[i];
+				Nepgear::Vertex v;
+
+				ai_to_glm_vec3(&v.position, mesh->mVertices[idx]);
+
+				if (mesh->mNormals != NULL)
+					ai_to_glm_vec3(&v.normal, mesh->mNormals[idx]);
+
+				if (mesh->HasTextureCoords(0))
+				ai_to_glm_vec3(&v.tex_coords, mesh->mTextureCoords[0][idx]);
+
+				if (mesh->mColors[0] != NULL)
+					ai_to_glm_vec4(&v.color, mesh->mColors[0][idx]);
+
+				std::vector<Nepgear::Vertex> *list;
+				
+				switch (face->mNumIndices)
+				{
+					case 1: list = &m.points; break;
+					case 2: list = &m.lines; break;
+					case 3: list = &m.triangles; break;
+					default: continue; break;
+				}
+				list->push_back(v);
+			}
+		}
+		m.parent = current;
+		current->children.push_back(m);
+	}
+	
+	for (unsigned n = 0; n < nd->mNumChildren; ++n)
+	{
+		if (current->children.size() <= n)
+		{
+			Nepgear::Mesh m;
+			m.depth = current->depth;
+			m.parent = current;
+			current->children.push_back(m);
+		}
+		recursive_load(&current->children[n], sc, nd->mChildren[n]);
+	}
+}
 
 void loader_thread(void *data)
 {
+	ThreadStatus *tdata = (ThreadStatus*)data;
+	const aiScene *scene;
+
 	Assimp::Importer imp;
+	scene = imp.ReadFile(
+		"Nepgear/nepgear.dae",
+		aiProcess_Triangulate | aiProcess_GenSmoothNormals
+	);
+
+	if (!scene)
+	{
+		printf("it didn't work :(\n");
+		tdata->data = NULL;
+	}
+	else
+	{
+		Nepgear::Mesh *mesh = new Nepgear::Mesh;
+		ai_to_glm_mat4(&mesh->xform, scene->mRootNode->mTransformation);
+		recursive_load(mesh, scene, scene->mRootNode);
+		tdata->data = (void*)mesh;
+	}
+
+	tdata->done = true;
 }
 /*
 bool Mesh::LoadMesh(const string& Filename)
@@ -43,6 +195,9 @@ void start_video(void *data)
 	Nepgear::State *ng = (Nepgear::State*)data;
 	Nepgear::Window *w;
 
+	ThreadStatus ts;
+	Nepgear::Thread t(loader_thread, (void*)&ts);
+
 	// wait for the window to be created.
 	while(ng->windows.empty());
 
@@ -55,6 +210,10 @@ void start_video(void *data)
 	glClearColor(1.0, 0.0, 0.0, 1.0);
 	while(ng->running)
 	{
+		if (ts.done)
+		{
+			glClearColor(0.0, 1.0, 0.0, 1.0);
+		}
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		w->SwapBuffers();
