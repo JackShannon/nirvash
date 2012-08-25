@@ -13,42 +13,45 @@ struct ThreadStatus {
 	void *data;
 };
 
-void ai_to_glm_mat4(glm::mat4 *out, aiMatrix4x4 in)
-{
-	(*out)[0] = glm::vec4(in.a1, in.a2, in.a3, in.a4);
-	(*out)[1] = glm::vec4(in.b1, in.b2, in.b3, in.b4);
-	(*out)[2] = glm::vec4(in.c1, in.c2, in.c3, in.c4);
-	(*out)[3] = glm::vec4(in.d1, in.d2, in.d3, in.d4);
-}
-
-void ai_to_glm_vec2(glm::vec2 *out, aiVector2t<float> in)
-{
-	out->x = in.x;
-	out->y = in.y;
-}
-
-void ai_to_glm_vec3(glm::vec3 *out, aiVector3t<float> in)
-{
-	out->x = in.x;
-	out->y = in.y;
-	out->z = in.z;
-}
-
-void ai_to_glm_vec4(glm::vec4 *out, aiColor4t<float> in)
-{
-	out->r = in.r;
-	out->g = in.g;
-	out->b = in.b;
-	out->a = in.a;
-}
-
 namespace Nepgear
 {
+	namespace Convert
+	{
+		void ai_to_glm_mat4(glm::mat4 *out, aiMatrix4x4 in)
+		{
+			(*out)[0] = glm::vec4(in.a1, in.a2, in.a3, in.a4);
+			(*out)[1] = glm::vec4(in.b1, in.b2, in.b3, in.b4);
+			(*out)[2] = glm::vec4(in.c1, in.c2, in.c3, in.c4);
+			(*out)[3] = glm::vec4(in.d1, in.d2, in.d3, in.d4);
+		}
+
+		void ai_to_glm_vec2(glm::vec2 *out, aiVector2t<float> in)
+		{
+			out->x = in.x;
+			out->y = in.y;
+		}
+
+		void ai_to_glm_vec3(glm::vec3 *out, aiVector3t<float> in)
+		{
+			out->x = in.x;
+			out->y = in.y;
+			out->z = in.z;
+		}
+
+		void ai_to_glm_vec4(glm::vec4 *out, aiColor4t<float> in)
+		{
+			out->r = in.r;
+			out->g = in.g;
+			out->b = in.b;
+			out->a = in.a;
+		}
+	}
+
 	struct Vertex
 	{
 		glm::vec3 position;
 		glm::vec3 normal;
-		glm::vec3 tex_coords;
+		glm::vec2 tex_coords;
 		glm::vec4 color;
 	};
 
@@ -73,6 +76,7 @@ namespace Nepgear
 
 void recursive_load(Nepgear::Mesh *current, const struct aiScene *sc, const struct aiNode* nd)
 {
+	using namespace Nepgear::Convert;
 	current->depth++;
 //	printf("depth: %d\n", current->depth);
 	ai_to_glm_mat4(&current->xform, nd->mTransformation);
@@ -100,7 +104,11 @@ void recursive_load(Nepgear::Mesh *current, const struct aiScene *sc, const stru
 					ai_to_glm_vec3(&v.normal, mesh->mNormals[idx]);
 
 				if (mesh->HasTextureCoords(0))
-				ai_to_glm_vec3(&v.tex_coords, mesh->mTextureCoords[0][idx]);
+				{
+					glm::vec3 tmp;
+					ai_to_glm_vec3(&tmp, mesh->mTextureCoords[0][idx]);
+					v.tex_coords = glm::vec2(tmp.x, tmp.y);
+				}
 
 				if (mesh->mColors[0] != NULL)
 					ai_to_glm_vec4(&v.color, mesh->mColors[0][idx]);
@@ -152,6 +160,7 @@ void loader_thread(void *data)
 	}
 	else
 	{
+		using namespace Nepgear::Convert;
 		Nepgear::Mesh *mesh = new Nepgear::Mesh;
 		ai_to_glm_mat4(&mesh->xform, scene->mRootNode->mTransformation);
 		recursive_load(mesh, scene, scene->mRootNode);
