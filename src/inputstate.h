@@ -24,8 +24,8 @@ enum InputEventType {
 struct InputEvent
 {
 	InputEvent(InputEventType t):
-		type(t), coords(glm::vec2(0.0f,0.0f)), key(0),
-		pressed(false), value(0.0f) { }
+		coords(glm::vec2(0.0f,0.0f)), key(0),
+		pressed(false), value(0.0f), type(t) { }
 
 	// mouse/tablet/touch coords
 	glm::vec2 coords;
