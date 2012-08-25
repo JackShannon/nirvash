@@ -2,7 +2,42 @@
 #include "state.h"
 #include "window.h"
 #include <GL/glfw3.h>
+#include <assimp/Importer.hpp>
 
+void loader_thread(void *data)
+{
+	Assimp::Importer imp;
+}
+/*
+bool Mesh::LoadMesh(const string& Filename)
+{
+    // Create the VAO
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+
+    // Create the buffers for the vertices attributes
+    glGenBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
+
+    bool Ret = false;
+
+    m_pScene = m_Importer.ReadFile(Filename.c_str(), aiProcess_Triangulate |
+		aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+
+    if (m_pScene) {
+       m_GlobalInverseTransform = m_pScene->mRootNode->mTransformation;
+       m_GlobalInverseTransform.Inverse();
+       Ret = InitFromScene(m_pScene, Filename);
+    }
+    else {
+       printf("Error parsing '%s': '%s'\n", Filename.c_str(), m_Importer.GetErrorString());
+    }
+
+    // Make sure the VAO is not changed from the outside
+    glBindVertexArray(0);
+
+    return Ret;
+} 
+*/
 void start_video(void *data)
 {
 	Nepgear::State *ng = (Nepgear::State*)data;
@@ -16,7 +51,7 @@ void start_video(void *data)
 	// Bind the OpenGL context to this thread
 	w->MakeCurrent();
 	w->VSync(true);
-	
+
 	glClearColor(1.0, 0.0, 0.0, 1.0);
 	while(ng->running)
 	{

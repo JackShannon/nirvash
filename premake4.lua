@@ -7,58 +7,9 @@ configuration "Debug"
 configuration { "linux", "gmake", "Debug" }
 	buildoptions { "-ggdb" }
 
-project "TinyThread++"
-	targetname "tinythread++"
-	targetdir "bin"
-	kind "StaticLib"
-	language "C++"
-	files { "lib/tinythread/*.cpp" }
-	links { "pthread" }
-
-project "GLFW"
-	targetname "glfw3-tls"
-	targetdir "bin"
-	kind "StaticLib"
-	language "C"
-	files {
-		"lib/glfw/src/*.c"
-	}
-	-- these should all use X11, dunno if BSD/Solaris work, though.
-	if os.get() == "bsd"
-		or os.get() == "linux"
-		or os.get() == "solaris" then
-		links { "Xrandr", "Xf86vidmode", "X11", "GL" }
-		excludes {
-			"lib/glfw/src/cocoa_*",
-			"lib/glfw/src/win32_*"
-		}
-		os.copyfile(
-			"lib/glfw/src/config.h.x11", 
-			"lib/glfw/src/config.h"
-		)
-	elseif os.get() == "macosx" then
-		links { "OpenGL.framework" }
-		excludes {
-			"lib/glfw/src/x11_*",
-			"lib/glfw/src/win32_*"
-		}
-		os.copyfile(
-			"lib/glfw/src/config.h.cocoa", 
-			"lib/glfw/src/config.h"
-		)
-	elseif os.get() == "windows" then
-		links { "opengl32" }
-		excludes {
-			"lib/glfw/src/cocoa_*",
-			"lib/glfw/src/x11_*"
-		}
-		os.copyfile(
-			"lib/glfw/src/config.h.win32", 
-			"lib/glfw/src/config.h"
-		)
-	else
-		print "Invalid OS detected. Not sure what to think of this."
-	end
+include "lib/tinythread"
+include "lib/glfw"
+include "lib/assimp"
 
 project "Nepgear" 
 	targetname "nepgear"
@@ -66,13 +17,15 @@ project "Nepgear"
 	kind "ConsoleApp"
 	language "C++"
 	files { "src/**.cpp" }
-	libdirs { "lib/glfw" }
+	libdirs { "bin" }
 	links {
 		"pthread", "TinyThread++",
-		"GLFW", "Xrandr", "X11", "GL"
+		"GLFW", "Xrandr", "X11", "GL", "z",
+		"Assimp"
 	}
 	includedirs {
 		"lib/glfw/include",
+		"lib/assimp/include",
 		"lib/glm",
 		"lib/tinythread",
 		"src"
@@ -83,3 +36,12 @@ project "Nepgear"
 
 	configuration { "linux", "gmake", "Debug" }
 		buildoptions { "-ggdb" }
+
+-- TODO
+newaction {
+	trigger     = "install",
+	description = "Install Nepgear (NOT IMPLEMENTED)",
+	execute = function ()
+		-- copy files, etc. here
+	end
+}
