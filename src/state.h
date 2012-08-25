@@ -3,6 +3,7 @@
 
 #include "thread.h"
 #include "window.h"
+#include "inputstate.h"
 #include <map>
 #include <vector>
 
@@ -17,6 +18,8 @@ namespace Nepgear
 		
 		std::map<std::string, Thread*> threads;
 		std::vector<Window*> windows;
+		
+		InputState input;
 		
 		bool running;
 	};

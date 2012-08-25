@@ -10,6 +10,9 @@ configuration { "linux", "gmake", "Debug" }
 include "lib/tinythread"
 include "lib/glfw"
 include "lib/assimp"
+include "lib/physfs"
+include "lib/zlib"
+include "lib/gl3w"
 
 project "Nepgear" 
 	targetname "nepgear"
@@ -20,13 +23,15 @@ project "Nepgear"
 	libdirs { "bin" }
 	links {
 		"pthread", "TinyThread++",
-		"GLFW", "Xrandr", "X11", "GL", "z",
-		"Assimp"
+		"GLFW", "Xrandr", "X11", "GL",
+		"Assimp", "PhysFS", "ZLib", "GL3W"
 	}
 	includedirs {
 		"lib/glfw/include",
 		"lib/assimp/include",
 		"lib/glm",
+		"lib/physfs",
+		"lib/zlib",
 		"lib/tinythread",
 		"src"
 	}
@@ -44,4 +49,5 @@ newaction {
 	execute = function ()
 		-- copy files, etc. here
 	end
-}
+ }
+ 
