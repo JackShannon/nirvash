@@ -74,6 +74,25 @@ namespace Nepgear
 	};
 }
 
+namespace Nepgear
+{
+//	Mesh *LoadFromFile(std::string path, bool threaded = true);
+
+	template<typename T>
+	struct ResourceLoader
+	{
+		ResourceLoader() : progress(0.0f), done(false) {}
+
+		std::vector<std::string> queue;
+		std::vector<T*> loaded;
+
+		float progress; // 0.0-1.0. float(queue.size() / loaded.size())
+		bool done; // finished processing entire queue, thread terminated.
+
+		void Process();
+	};
+}
+
 void recursive_load(Nepgear::Mesh *current, const struct aiScene *sc, const struct aiNode* nd)
 {
 	using namespace Nepgear::Convert;
