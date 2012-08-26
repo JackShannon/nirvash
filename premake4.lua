@@ -37,7 +37,7 @@ project "Nepgear"
 	}
 
 	configuration { "linux", "gmake" }
-		buildoptions { "-std=c++0x", "-Wall", "-pedantic" }
+		buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-Werror", "-Wextra" }
 
 	configuration { "linux", "gmake", "Debug" }
 		buildoptions { "-ggdb" }
