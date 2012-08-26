@@ -43,6 +43,7 @@ struct InputEvent
 /*
  * Note: You should probably only have one of these.
  */
+
 class InputState
 {
 public:
