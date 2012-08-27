@@ -7,88 +7,8 @@
 #include "state.h"
 #include "window.h"
 #include "resourceloader.h"
-#include "entity.h"
 #include "material.h"
-
-namespace Nepgear
-{
-	class Model : public Entity
-	{
-	public:
-		Model() : m_mesh(NULL) {}
-
-		void SetMesh(Mesh *m)
-		{
-			m_mesh = m;
-		}
-
-		void UploadMesh()
-		{
-			if (m_mesh)
-				UploadMeshResursive(m_mesh);
-			else
-				printf("bad juju\n");
-		}
-		
-		void Update()
-		{
-			
-		}
-
-		void Draw()
-		{
-			if (!m_mesh) return;
-			DrawRecursive(m_mesh);
-		}
-
-	protected:
-		void UploadMeshResursive(Mesh *child)
-		{
-			if (!child->triangles.empty())
-			{
-				glGenVertexArrays(1, &child->vao);
-				glBindVertexArray(child->vao);
-	
-				glGenBuffers(1, &child->buffer);
-				glBindBuffer(GL_ARRAY_BUFFER, child->buffer);
-				glBufferData(
-					GL_ARRAY_BUFFER, child->triangles.size() * sizeof(Vertex),
-					&child->triangles[0].position.x, GL_STATIC_DRAW
-				);
-
-				// position
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), 0);
-
-				// normal
-				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(Vertex), (void*)sizeof(glm::vec3));
-
-				m_render_stack.push_back(child);
-			}
-			
-			for (size_t i = 0; i < child->children.size(); i++)
-			{
-					UploadMeshResursive(&child->children[i]);
-			}
-		}
-
-		void DrawRecursive(Mesh *child)
-		{
-			//glBindProgram(m_materials[child->material_id]);
-			glBindVertexArray(child->vao);
-			glDrawArrays(GL_TRIANGLES, 0, child->triangles.size());
-
-			for (size_t i = 0; i < child->children.size(); i++)
-			{
-					DrawRecursive(&child->children[i]);
-			}
-		}
-
-		Mesh *m_mesh;
-		std::vector<Mesh*> m_render_stack;
-	};
-}
+#include "model.h"
 
 void start_video(void *data)
 {
@@ -120,11 +40,10 @@ void start_video(void *data)
 	
 	glm::mat4 mvp(1.0);
 	glm::mat4 projection = glm::perspective(70.0f, 1.6f, 1.0f, 1000.0f);
-	glm::mat4 model(1.0);
 
-	model = glm::translate(model, vec3(0.0f, -45.0f, -100.0f));
-	model = glm::rotate(model, -90.f, vec3(1.0, 0.0, 0.0));
-	mvp = projection * model;
+	mvp = glm::translate(mvp, vec3(0.0f, -45.0f, -100.0f));
+	mvp = glm::rotate(mvp, -90.f, vec3(1.0, 0.0, 0.0));
+	mvp = projection * mvp;
 	
 	mat.set_uniform_vec3("LightDirection", glm::normalize(glm::vec3(0.0f, -0.5f, 1.0f)));
 	mat.set_uniform_mat4("ModelViewProjection", mvp);
