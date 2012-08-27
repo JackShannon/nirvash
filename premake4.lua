@@ -29,6 +29,7 @@ project "Nepgear"
 	includedirs {
 		"lib/glfw/include",
 		"lib/assimp/include",
+		"lib/gl3w/include",
 		"lib/glm",
 		"lib/physfs",
 		"lib/zlib",

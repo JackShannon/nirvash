@@ -1,6 +1,8 @@
 #ifndef _NEPGEAR_RESOURCE_LOADER_H_
 #define _NEPGEAR_RESOURCE_LOADER_H_
 
+#include "entity.h"
+#include "thread.h"
 #include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -39,32 +41,6 @@ namespace Nepgear
 			out->a = in.a;
 		}
 	}
-
-	struct Vertex
-	{
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 tex_coords;
-		glm::vec4 color;
-	};
-
-	struct Mesh
-	{
-		Mesh() : depth(0) {}
-
-		int material_id;
-
-		std::vector<Vertex> points;
-		std::vector<Vertex> lines;
-		std::vector<Vertex> triangles;
-
-		glm::mat4 xform;
-
-		Mesh *parent;
-		std::vector<Mesh> children;
-
-		int depth;
-	};
 }
 
 namespace Nepgear
@@ -90,8 +66,8 @@ namespace Nepgear
 		static void recursive_load(T *current, const struct aiScene *sc, const struct aiNode* nd)
 		{
 			using namespace Nepgear::Convert;
-			current->depth++;
-		//	printf("depth: %d\n", current->depth);
+			//current->depth++;
+			//printf("depth: %d\n", current->depth);
 			ai_to_glm_mat4(&current->xform, nd->mTransformation);
 			
 			for (unsigned n = 0; n < nd->mNumMeshes; ++n)
@@ -147,7 +123,7 @@ namespace Nepgear
 				if (current->children.size() <= n)
 				{
 					T m;
-					m.depth = current->depth;
+					//m.depth = current->depth;
 					m.parent = current;
 					current->children.push_back(m);
 				}
@@ -180,9 +156,10 @@ namespace Nepgear
 					ai_to_glm_mat4(&mesh->xform, scene->mRootNode->mTransformation);
 					recursive_load(mesh, scene, scene->mRootNode);
 					self->loaded.push_back(mesh);
+					self->progress = float(self->queue.size() / self->loaded.size());
 				}
 			}
-
+			self->queue.clear();
 			self->done = true;
 		}
 		

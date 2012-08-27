@@ -1,7 +1,6 @@
 #ifndef _NEPGEAR_MESH_H_
 #define _NEPGEAR_MESH_H_
 
-#include <GL3/gl3w.h>
 #include <vector>
 #include <glm/glm.hpp>
 
@@ -18,6 +17,7 @@ struct Bone
 };
 
 /* position, normal, texcoords, associated bone and weight */
+/*
 struct Vertex
 {
 	glm::vec3 position, normal;
@@ -25,7 +25,7 @@ struct Vertex
 	unsigned bone;
 	float weight;
 };
-
+*/
 /* stores 3 vertex indices and a face normal */
 struct Face
 {
@@ -33,11 +33,32 @@ struct Face
 	glm::vec3 normal;
 };
 
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 tex_coords;
+	glm::vec4 color;
+};
+
 struct Mesh
 {
-	std::vector<Vertex> vertices;
-	std::vector<Face> faces;
-	std::vector<Bone> bones;
+	Mesh() : vao(0), buffer(0) {}
+
+	int material_id;
+
+	std::vector<Vertex> points;
+	std::vector<Vertex> lines;
+	std::vector<Vertex> triangles;
+
+	glm::mat4 xform;
+
+	Mesh *parent;
+	std::vector<Mesh> children;
+
+	// GL stuff
+	unsigned vao;
+	unsigned buffer;
 };
 
 }
