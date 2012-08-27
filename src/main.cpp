@@ -136,7 +136,7 @@ void start_video(void *data)
 		
 		w->SwapBuffers();
 
-		//glfwPollEvents(); // HACK: glfwWaitEvents() fucks up this loop? What?
+		glfwPollEvents(); // HACK: glfwWaitEvents() fucks up this loop? What?
 	}
 
 	auto it = render_queue.begin();
@@ -178,7 +178,7 @@ void init_game(Nepgear::State *ng)
 	
 	while (ng->running)
 	{
-		glfwWaitEvents(); // NOTE: broken
+		//glfwWaitEvents(); // NOTE: broken
 
 		if (glfwGetKey(w.GetHandle(), GLFW_KEY_ESC) == GLFW_PRESS ||
 			glfwGetWindowParam(w.GetHandle(), GLFW_CLOSE_REQUESTED))
