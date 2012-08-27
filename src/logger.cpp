@@ -75,7 +75,7 @@ void Logger::print_header()
 
 	strftime(sTime, 25, "%m/%d/%Y @ %H:%M:%S", localtime(&raw));
 	trace("------------------------------------------------------------");
-	trace("-- Rhythm-Station log started at %s", sTime);
+	trace("-- Nepgear log started at %s", sTime);
 	trace("------------------------------------------------------------");
 }
 
