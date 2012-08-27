@@ -1,5 +1,6 @@
 #include <GL/gl3w.h>
 #include <GL/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "mesh.h"
 #include "thread.h"
@@ -7,6 +8,7 @@
 #include "window.h"
 #include "resourceloader.h"
 #include "entity.h"
+#include "material.h"
 
 namespace Nepgear
 {
@@ -75,7 +77,7 @@ namespace Nepgear
 		{
 			//glBindProgram(m_materials[child->material_id]);
 			glBindVertexArray(child->vao);
-			glDrawArrays(GL_TRIANGLES, 0, child->triangles.size() / 3);
+			glDrawArrays(GL_TRIANGLES, 0, child->triangles.size());
 
 			for (size_t i = 0; i < child->children.size(); i++)
 			{
@@ -96,7 +98,7 @@ void start_video(void *data)
 	Nepgear::ResourceLoader<Nepgear::Mesh> ml;
 	ml.queue.push_back("Nepgear/nepgear.dae");
 	ml.Process();
-
+	
 	// wait for the window to be created.
 	while(ng->windows.empty());
 
@@ -112,7 +114,24 @@ void start_video(void *data)
 	
 	std::vector<Nepgear::Model*> render_queue;
 
+	Nepgear::Material mat;
+	mat.load("test.glsl");
+	mat.bind();
+	
+	glm::mat4 mvp(1.0);
+	glm::mat4 projection = glm::perspective(70.0f, 1.6f, 1.0f, 1000.0f);
+	glm::mat4 model(1.0);
+
+	model = glm::translate(model, vec3(0.0f, -45.0f, -100.0f));
+	model = glm::rotate(model, -90.f, vec3(1.0, 0.0, 0.0));
+	mvp = projection * model;
+	
+	mat.set_uniform_vec3("LightDirection", glm::normalize(glm::vec3(0.0f, -0.5f, 1.0f)));
+	mat.set_uniform_mat4("ModelViewProjection", mvp);
+
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0, 0.0, 0.0, 1.0);
+
 	while(ng->running)
 	{
 		if (ml.done)
@@ -129,12 +148,13 @@ void start_video(void *data)
 
 				render_queue.push_back(m);
 			}
-			
-			glClearColor(0.0, 1.0, 0.0, 1.0);
+			if (glGetError())
+				printf("shit\n");
+			glClearColor(0.1, 0.4, 0.8, 1.0);
 		}
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-		printf("queue size: %ld\n", render_queue.size());
+		//printf("queue size: %ld\n", render_queue.size());
 		
 		auto it = render_queue.begin();
 		for ( ; it != render_queue.end(); ++it)

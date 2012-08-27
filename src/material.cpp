@@ -88,7 +88,8 @@ void Material::load(std::string path)
 	glAttachShader(program.shader_program, program.fragment_shader);
 
 	glBindAttribLocation(program.shader_program, 0, "vPosition");
-	glBindAttribLocation(program.shader_program, 1, "vCoord");
+	glBindAttribLocation(program.shader_program, 1, "vNormal");
+	glBindFragDataLocation(program.shader_program, 0, "FragColor");
 
 	glLinkProgram(program.shader_program);
 	glValidateProgram(program.shader_program);

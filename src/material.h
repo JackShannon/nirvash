@@ -15,9 +15,12 @@ void set_uniform_##type(std::string key, type data) \
 	std::map<std::string, unsigned>::iterator it = uniforms.find(key); \
 	if (it == uniforms.end()) \
 	{ \
-		uniforms[key] = glGetUniformLocation(program.shader_program, \
+		location = glGetUniformLocation(program.shader_program, \
 			key.c_str()); \
-	}
+		uniforms[key] = location;\
+	} \
+	else\
+		location = it->second;
 
 #define POD_UNIFORM_TYPE(type, fn) \
 	UNIFORM_TYPE(type); \
@@ -51,7 +54,9 @@ public:
 	POD_UNIFORM_TYPE(float, glUniform1fv);
 	POD_UNIFORM_TYPE(int, glUniform1iv);
 	VECTOR_UNIFORM_TYPE(vec2, glUniform2fv);
+	VECTOR_UNIFORM_TYPE(vec3, glUniform3fv);
 	MATRIX_UNIFORM_TYPE(mat2, glUniformMatrix2fv);
+	MATRIX_UNIFORM_TYPE(mat4, glUniformMatrix4fv);
 	
 protected:
 	struct {
