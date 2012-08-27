@@ -54,6 +54,14 @@ namespace Nepgear
 					&child->triangles[0].position.x, GL_STATIC_DRAW
 				);
 
+				// position
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), 0);
+
+				// normal
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(Vertex), (void*)sizeof(glm::vec3));
+
 				m_render_stack.push_back(child);
 			}
 			
