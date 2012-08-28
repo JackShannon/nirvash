@@ -20,9 +20,9 @@ void Model::UploadMesh()
 		log.warn("[Model] Attempt to upload NULL mesh");
 }
 
-void Model::Update()
+void Model::Update(double delta)
 {
-	
+	if (!delta) return;
 }
 
 void Model::Draw()

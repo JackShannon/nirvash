@@ -13,7 +13,7 @@ namespace Nepgear
 
 		void SetMesh(Mesh *m);
 		void UploadMesh();
-		void Update();
+		void Update(double delta);
 		void Draw();
 
 	protected:

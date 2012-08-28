@@ -18,7 +18,7 @@ void start_video(void *data)
 	Nepgear::Logger log(NULL);
 
 	Nepgear::ResourceLoader<Nepgear::Mesh> ml;
-	ml.queue.push_back("Nepgear/nepgear.dae");
+	ml.queue.push_back("monkey.dae");
 	ml.Process();
 	
 	// wait for the window to be created.
@@ -50,18 +50,24 @@ void start_video(void *data)
 	glm::mat4 mvp(1.0);
 	glm::mat4 projection = glm::perspective(70.0f, 1.6f, 1.0f, 1000.0f);
 
-	mvp = glm::translate(mvp, vec3(0.0f, -45.0f, -100.0f));
-	mvp = glm::rotate(mvp, -90.f, vec3(1.0, 0.0, 0.0));
+	mvp = glm::translate(mvp, vec3(0.0f, 0.0f, -10.0f));
 	mvp = projection * mvp;
 	
-	mat.set_uniform_vec3("LightDirection", glm::normalize(glm::vec3(0.0f, -0.5f, 1.0f)));
+	mat.set_uniform_vec3("LightDirection", glm::normalize(glm::vec3(0.0f, 1.0f, 0.5f)));
 	mat.set_uniform_mat4("ModelViewProjection", mvp);
 
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(1.0, 0.0, 0.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
+	double now = glfwGetTime();
+	double then = now;
+	double delta = 0.0;
 	while(ng->running)
 	{
+		now = glfwGetTime();
+		delta = now - then;
+		then = now;
+
 		if (ml.done)
 		{
 			// disable flag so we don't upload again.
@@ -81,15 +87,13 @@ void start_video(void *data)
 				log.warn("GL error while loading resources!\n");
 				break;
 			}
-			glClearColor(0.1, 0.4, 0.8, 1.0);
 		}
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-		//printf("queue size: %ld\n", render_queue.size());
 		
 		auto it = render_queue.begin();
 		for ( ; it != render_queue.end(); ++it)
 		{
+			(*it)->Update(delta);
 			(*it)->Draw();
 		}
 		
