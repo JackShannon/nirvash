@@ -71,7 +71,7 @@ void start_video(void *data)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(
-		GL_TEXTURE_2D, 0, GL_RGBA8, w->width*2, w->height*2,
+		GL_TEXTURE_2D, 0, GL_RGBA8, w->width, w->height,
 		0, GL_RGBA, GL_UNSIGNED_BYTE, 0
 	);
 
@@ -83,7 +83,7 @@ void start_video(void *data)
 	glBindRenderbuffer(GL_RENDERBUFFER, rbf);
 	glRenderbufferStorage(
 		GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
-		w->width*2, w->height*2
+		w->width, w->height
 	);
 
 	GLuint fbo;
