@@ -33,7 +33,9 @@ namespace Nepgear
 		void SwapBuffers();
 		
 		WindowHandle GetHandle();
-		
+
+		int width, height;
+
 	protected:
 		WindowHandle m_handle;
 	};

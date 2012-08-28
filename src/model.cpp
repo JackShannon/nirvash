@@ -53,6 +53,10 @@ void Model::UploadMeshResursive(Mesh *child)
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(Vertex), (void*)sizeof(glm::vec3));
 
+		// tex coords
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, false, sizeof(Vertex), (void*)sizeof(glm::vec3));
+
 		m_render_stack.push_back(child);
 	}
 	

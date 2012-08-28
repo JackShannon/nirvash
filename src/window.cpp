@@ -43,6 +43,8 @@ namespace Nepgear
 			mode, "", (GLFWwindow)flags.homie
 		);
 		glfwSetWindowUserPointer(m_handle, this);
+		width = flags.width;
+		height = flags.height;
 	}
 
 	void Window::Destroy()

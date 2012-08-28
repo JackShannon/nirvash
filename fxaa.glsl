@@ -13,19 +13,19 @@
 #version 150
 
 in vec4 vPosition;
-in vec2 vTexCoords;
+in vec2 vTexCoord;
 
-out vec2 TexCoords;
+out vec2 TexCoord;
 
 void main() {
-	TexCoords = vTexCoords;
+	TexCoord = vTexCoord;
 	gl_Position = vPosition;
 }
 
 -- Fragment
 #version 150
 uniform sampler2D Texture;
-in vec2 TexCoords;
+in vec2 TexCoord;
 
 out vec4 FragColor;
 
@@ -217,7 +217,7 @@ vec4 FxaaPixelShader(
 
 void main() {    
 	FragColor = FxaaPixelShader(
-		TexCoords,
+		TexCoord,
 		Texture,
 		1.0/textureSize(Texture,0),
 		0.75,

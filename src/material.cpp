@@ -89,6 +89,8 @@ void Material::load(std::string path)
 
 	glBindAttribLocation(program.shader_program, 0, "vPosition");
 	glBindAttribLocation(program.shader_program, 1, "vNormal");
+	glBindAttribLocation(program.shader_program, 2, "vTexCoord");
+
 	glBindFragDataLocation(program.shader_program, 0, "FragColor");
 
 	glLinkProgram(program.shader_program);
