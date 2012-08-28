@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include "mesh.h"
+#include "material.h"
 
 namespace Nepgear
 {
@@ -12,10 +13,12 @@ namespace Nepgear
 		Model() : m_mesh(NULL) {}
 
 		void SetMesh(Mesh *m);
+		void SetMaterial(Material *m);
 		void UploadMesh();
 		void Update(double delta);
 		void Draw();
 
+		Material *m_material;
 	protected:
 		void UploadMeshResursive(Mesh *child);
 		void DrawRecursive(Mesh *child);

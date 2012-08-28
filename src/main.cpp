@@ -1,3 +1,4 @@
+#define GLM_SWIZZLE
 #include <GL/gl3w.h>
 #include <GL/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,6 +20,7 @@ void start_video(void *data)
 
 	Nepgear::ResourceLoader<Nepgear::Mesh> ml;
 	ml.queue.push_back("monkey.dae");
+	//ml.queue.push_back("Nepgear/nepgear.dae");
 	ml.Process();
 	
 	// wait for the window to be created.
@@ -47,17 +49,18 @@ void start_video(void *data)
 	mat.load("test.glsl");
 	mat.bind();
 	
-	glm::mat4 mvp(1.0);
+	glm::mat4 view(1.0);
 	glm::mat4 projection = glm::perspective(70.0f, 1.6f, 1.0f, 1000.0f);
 
-	mvp = glm::translate(mvp, vec3(0.0f, 0.0f, -10.0f));
-	mvp = projection * mvp;
+	view = glm::translate(view, vec3(0.0f, -25.0f, -70.0f));
+	view = glm::rotate(view, -80.f, vec3(1.0, 0.0, 0.0));
 	
 	mat.set_uniform_vec3(
 		"LightDirection",
 		glm::normalize(glm::vec3(0.0f, 1.0f, 0.5f))
 	);
-	mat.set_uniform_mat4("ModelViewProjection", mvp);
+	mat.set_uniform_mat4("View", view);
+	mat.set_uniform_mat4("Projection", projection);
 
 	fxaa.load("fxaa.glsl");
 	fxaa.bind();
@@ -132,7 +135,9 @@ void start_video(void *data)
 	//if(glGetError()) log.warn("problem! L#%d",__LINE__);
 
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glm::vec4 clear = glm::vec4(0.1, 0.4, 0.8, 1.0);
+	clear.a = glm::dot(glm::vec3(clear.rgb()), glm::vec3(0.299, 0.587, 0.114));
+	glClearColor(clear.r, clear.g, clear.b, clear.a);
 
 	double now = glfwGetTime();
 	double then = now;
@@ -148,12 +153,13 @@ void start_video(void *data)
 		{
 			// disable flag so we don't upload again.
 			ml.done = false;
-			
+
 			auto it = ml.loaded.begin();
 			for ( ; it != ml.loaded.end(); ++it)
 			{
 				Nepgear::Model *m = new Nepgear::Model();
 				m->SetMesh(*it);
+				m->SetMaterial(&mat);
 				m->UploadMesh();
 
 				render_queue.push_back(m);
@@ -165,6 +171,7 @@ void start_video(void *data)
 			}
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 

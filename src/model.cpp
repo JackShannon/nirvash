@@ -11,6 +11,11 @@ void Model::SetMesh(Mesh *m)
 	m_mesh = m;
 }
 
+void Model::SetMaterial(Material *m)
+{
+	m_material = m;
+}
+
 void Model::UploadMesh()
 {
 	Logger log(NULL);
@@ -69,6 +74,9 @@ void Model::UploadMeshResursive(Mesh *child)
 void Model::DrawRecursive(Mesh *child)
 {
 	//glBindProgram(m_materials[child->material_id]);
+	m_material->bind();
+	m_material->set_uniform_mat4("Model", child->xform);
+
 	glBindVertexArray(child->vao);
 	glDrawArrays(GL_TRIANGLES, 0, child->triangles.size());
 
