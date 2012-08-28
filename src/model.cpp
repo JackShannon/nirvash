@@ -1,6 +1,7 @@
 #include <GL/gl3w.h>
 
 #include "model.h"
+#include "logger.h"
 
 namespace Nepgear
 {
@@ -12,10 +13,11 @@ void Model::SetMesh(Mesh *m)
 
 void Model::UploadMesh()
 {
+	Logger log(NULL);
 	if (m_mesh)
 		UploadMeshResursive(m_mesh);
 	else
-		printf("bad juju\n");
+		log.warn("[Model] Attempt to upload NULL mesh");
 }
 
 void Model::Update()

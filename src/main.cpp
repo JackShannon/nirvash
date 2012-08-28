@@ -9,11 +9,13 @@
 #include "resourceloader.h"
 #include "material.h"
 #include "model.h"
+#include "logger.h"
 
 void start_video(void *data)
 {
 	Nepgear::State *ng = (Nepgear::State*)data;
 	Nepgear::Window *w;
+	Nepgear::Logger log(NULL);
 
 	Nepgear::ResourceLoader<Nepgear::Mesh> ml;
 	ml.queue.push_back("Nepgear/nepgear.dae");
@@ -30,7 +32,14 @@ void start_video(void *data)
 
 	gl3wInit();
 	if (!gl3wIsSupported(3, 2))
-		printf("oh, shit\n");
+	{
+		log.warn(
+			"OpenGL 3.2 is not supported. Please check your drivers"
+			"or hardware for support."
+		);
+		w->ClearCurrent();
+		return;
+	}
 	
 	std::vector<Nepgear::Model*> render_queue;
 
@@ -68,7 +77,10 @@ void start_video(void *data)
 				render_queue.push_back(m);
 			}
 			if (glGetError())
-				printf("shit\n");
+			{
+				log.warn("GL error while loading resources!\n");
+				break;
+			}
 			glClearColor(0.1, 0.4, 0.8, 1.0);
 		}
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
