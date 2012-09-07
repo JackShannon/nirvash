@@ -1,4 +1,5 @@
 #include "window.h"
+#include <GL/gl3w.h>
 #include <GL/glfw3.h>
 
 // Nepgear/window.cpp
@@ -50,6 +51,12 @@ namespace Nepgear
 	void Window::Destroy()
 	{
 		glfwDestroyWindow((GLFWwindow)m_handle);
+	}
+
+	int Window::Prepare(int major, int minor)
+	{
+		gl3wInit();
+		return gl3wIsSupported(major, minor);
 	}
 
 	void Window::VSync(bool enabled)

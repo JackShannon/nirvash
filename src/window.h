@@ -29,6 +29,7 @@ namespace Nepgear
 
 		//void Resize(glm::vec2);
 
+		int Prepare(int major, int minor);
 		void VSync(bool);
 		void SwapBuffers();
 		
