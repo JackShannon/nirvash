@@ -2,7 +2,7 @@
 #define _NEPGEAR_RESOURCE_LOADER_H_
 
 #include "entity.h"
-#include "thread.h"
+#include "utils/thread.h"
 #include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

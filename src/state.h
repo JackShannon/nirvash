@@ -1,7 +1,7 @@
 #ifndef _NEPGEAR_STATE_H_
 #define _NEPGEAR_STATE_H_
 
-#include "thread.h"
+#include "utils/thread.h"
 #include "window.h"
 #include "inputstate.h"
 #include <map>
