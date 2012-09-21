@@ -30,8 +30,9 @@ void Model::Update(double delta)
 	if (!delta) return;
 }
 
-void Model::Draw()
+void Model::Draw(int buffer)
 {
+	if (buffer > 2) return; // TODO: make useful!
 	if (!m_mesh) return;
 	DrawRecursive(m_mesh);
 }

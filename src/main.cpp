@@ -13,6 +13,8 @@
 #include "logger.h"
 #include "postprocess.h"
 
+const int num_buffers = 1;
+
 void start_video(void *data)
 {
 	Nepgear::State *ng = (Nepgear::State*)data;
@@ -41,6 +43,11 @@ void start_video(void *data)
 		w->ClearCurrent();
 		return;
 	}
+	
+	// HACK: NVIDIA 295.20 drivers specifically doesn't wait properly.
+	if (strcmp((const char*)glGetString(GL_VERSION), "3.2.0 NVIDIA 295.20")==0)
+		ng->configuration["enable_wait_hack"] = true;
+	ng->start = true;
 	
 	std::vector<Nepgear::Model*> render_queue;
 
@@ -114,15 +121,23 @@ void start_video(void *data)
 		for ( ; it != render_queue.end(); ++it)
 		{
 			(*it)->Update(delta);
-			(*it)->Draw();
+			for (int i = 0; i<num_buffers; i++)
+				(*it)->Draw(i);
 		}
 
 		fxaa.unbind();
+
 		fxaa.draw();
 
 		w->SwapBuffers();
 
-		glfwPollEvents(); // HACK: glfwWaitEvents() fucks up this loop? What?
+		// HACK: glfwWaitEvents() workaround.
+		if (ng->configuration["enable_wait_hack"])
+		{
+			glfwPollEvents();
+			// This only needs to happen for the first update!
+			ng->configuration["enable_wait_hack"] = false;
+		}
 	}
 
 	auto it = render_queue.begin();
@@ -158,11 +173,19 @@ void init_game(Nepgear::State *ng)
 	w.Create(f);
 
 	ng->windows.push_back(&w);
-	
+
+	// wait for configuration to be worked out in the GL thread
+	while (!ng->start);
+
 	while (ng->running)
 	{
-		//glfwWaitEvents(); // NOTE: broken
-		//tthread::this_thread::sleep_for(tthread::chrono::milliseconds(1));
+		/* HACK: glfwWaitEvents misbehaves for me using nvidia's 295.20 drivers
+		 * and a GT 330. Workaround: force poll on first update in other thread
+		 */
+		if (!ng->configuration["enable_wait_hack"])
+			glfwWaitEvents();
+		else
+			tthread::this_thread::sleep_for(tthread::chrono::milliseconds(16));
 
 		if (glfwGetKey(w.GetHandle(), GLFW_KEY_ESC) == GLFW_PRESS ||
 			glfwGetWindowParam(w.GetHandle(), GLFW_CLOSE_REQUESTED))

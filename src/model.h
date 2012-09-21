@@ -16,7 +16,7 @@ namespace Nepgear
 		void SetMaterial(Material *m);
 		void UploadMesh();
 		void Update(double delta);
-		void Draw();
+		void Draw(int buffer);
 
 		Material *m_material;
 	protected:

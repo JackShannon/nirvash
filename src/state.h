@@ -12,15 +12,18 @@ namespace Nepgear
 {
 	struct State
 	{
-		State() : running(true) {}
+		State() : start(false), running(true) {}
 
 		Mutex lock;
-		
+
 		std::map<std::string, Thread*> threads;
 		std::vector<Window*> windows;
-		
+
+		std::map<std::string, bool> configuration;
+
 		InputState input;
-		
+
+		bool start;
 		bool running;
 	};
 }
