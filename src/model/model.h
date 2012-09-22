@@ -2,8 +2,8 @@
 #define _NEPGEAR_MODEL_H_
 
 #include "entity.h"
-#include "mesh.h"
-#include "material.h"
+#include "material/material.h"
+#include "model/mesh.h"
 
 namespace Nepgear
 {

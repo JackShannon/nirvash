@@ -16,29 +16,13 @@ struct Bone
 	Bone *previous, *next;
 };
 
-/* position, normal, texcoords, associated bone and weight */
-/*
 struct Vertex
 {
 	glm::vec3 position, normal;
-	glm::vec2 tex_coords[4];
-	unsigned bone;
-	float weight;
-};
-*/
-/* stores 3 vertex indices and a face normal */
-struct Face
-{
-	int v1, v2, v3;
-	glm::vec3 normal;
-};
-
-struct Vertex
-{
-	glm::vec3 position;
-	glm::vec3 normal;
 	glm::vec2 tex_coords;
 	glm::vec4 color;
+	float weights[4];
+//	unsigned bone;
 };
 
 struct Mesh

@@ -2,12 +2,13 @@
 #define _NEPGEAR_RESOURCE_LOADER_H_
 
 #include "entity.h"
+#include "model/mesh.h"
 #include "utils/thread.h"
+#include "utils/logger.h"
 #include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "logger.h"
 
 namespace Nepgear
 {

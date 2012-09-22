@@ -1,7 +1,7 @@
 #include <GL/gl3w.h>
 
 #include "model.h"
-#include "logger.h"
+#include "utils/logger.h"
 
 namespace Nepgear
 {

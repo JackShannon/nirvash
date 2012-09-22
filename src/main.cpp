@@ -3,17 +3,24 @@
 #include <GL/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "utils/thread.h"
-#include "mesh.h"
 #include "state.h"
 #include "window.h"
 #include "resourceloader.h"
-#include "material.h"
-#include "model.h"
-#include "logger.h"
-#include "postprocess.h"
+#include "fx/postprocess.h"
+#include "material/material.h"
+#include "model/model.h"
+#include "utils/thread.h"
+#include "utils/logger.h"
 
 const int num_buffers = 1;
+
+// Calculate FXAA alpha for a given color
+float calc_alpha(vec3 in)
+{
+	using namespace glm;
+	return dot(in, vec3(0.299, 0.587, 0.114));
+}
+
 
 void start_video(void *data)
 {
@@ -73,7 +80,8 @@ void start_video(void *data)
 	fxaa.load("fxaa.glsl");
 
 	glm::vec4 clear = glm::vec4(0.1, 0.4, 0.8, 1.0);
-	clear.a = glm::dot(glm::vec3(clear.rgb()), glm::vec3(0.299, 0.587, 0.114));
+	clear.a = calc_alpha(clear.rgb());
+
 	glClearColor(clear.r, clear.g, clear.b, clear.a);
 
 	glEnable(GL_DEPTH_TEST);

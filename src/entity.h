@@ -10,6 +10,8 @@ public:
 	Entity();
 	virtual ~Entity();
 
+//	virtual void update(double dt) {}
+	
 	Entity *parent;
 	std::vector<Entity> children;
 

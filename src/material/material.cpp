@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "material.h"
 #include "file.h"
-#include "logger.h"
+#include "utils/logger.h"
 
 using namespace Nepgear;
 

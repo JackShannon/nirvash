@@ -2,7 +2,7 @@
 #define _NEPGEAR_POSTPROCESS_H_
 
 #include <string>
-#include "material.h"
+#include "material/material.h"
 
 namespace Nepgear
 {
