@@ -7,6 +7,13 @@
 #include <map>
 #include <vector>
 
+extern "C"
+{
+	#include "lua.h"
+	#include "lualib.h"
+	#include "lauxlib.h"
+}
+
 // Nepgear/state.h
 namespace Nepgear
 {
@@ -23,9 +30,13 @@ namespace Nepgear
 
 		InputState input;
 
+		lua_State *lua;
+
 		bool start;
 		bool running;
 	};
 }
+
+#define UNUSED(x) ((void)(x)) /* to avoid warnings */
 
 #endif

@@ -13,6 +13,7 @@ include "lib/assimp"
 include "lib/physfs"
 include "lib/zlib"
 include "lib/gl3w"
+include "lib/lua"
 
 project "Nepgear" 
 	targetname "nepgear"
@@ -24,7 +25,8 @@ project "Nepgear"
 	links {
 		"pthread", "TinyThread++",
 		"GLFW", "Xrandr", "X11", "GL",
-		"Assimp", "PhysFS", "ZLib", "GL3W"
+		"Assimp", "PhysFS", "ZLib", "GL3W",
+		"Lua"
 	}
 	includedirs {
 		"lib/glfw/include",
@@ -34,6 +36,7 @@ project "Nepgear"
 		"lib/physfs",
 		"lib/zlib",
 		"lib/tinythread",
+		"lib/lua/src",
 		"src"
 	}
 

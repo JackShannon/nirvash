@@ -11,6 +11,7 @@
 #include "model/model.h"
 #include "utils/thread.h"
 #include "utils/logger.h"
+#include "configuration.h"
 
 const int num_buffers = 1;
 
@@ -132,7 +133,6 @@ void start_video(void *data)
 			for (int i = 0; i<num_buffers; i++)
 				(*it)->Draw(i);
 		}
-
 		fxaa.unbind();
 
 		fxaa.draw();
@@ -165,13 +165,45 @@ void start_audio(void *data)
 	while (ng->running) break;
 }
 
+static void open_libs(lua_State *L)
+{
+	luaL_Reg libs[] =
+	{
+		{ "base",	luaopen_base },
+		{ "table",	luaopen_table },
+		{ "string",	luaopen_string },
+		{ "math",	luaopen_math },
+		{ "debug",	luaopen_debug },
+		//{ "io",	luaopen_io },
+		//{ "os",	luaopen_os },
+		//{ "package", luaopen_package },
+		{ NULL, NULL }
+	};
+
+	const luaL_reg *lib = libs;
+	for ( ; lib->func; lib++)
+	{
+		// open library
+		lib->func(L);
+
+		// discard any results
+		lua_settop(L, 0);
+	}
+}
+
 void init_game(Nepgear::State *ng)
 {
+	Configuration conf("config.lua");
+
+	ng->lua = lua_open();
+
+	open_libs(ng->lua);
+
 	Nepgear::Window w;
 	Nepgear::WindowFlags f;
 	{
-		f.width = 960;
-		f.height = 540;
+		f.width = conf.get_integer("DisplayWidth", 1280);
+		f.height = conf.get_integer("DisplayHeight", 720);
 		f.gl_major = 3;
 		f.gl_minor = 2;
 		f.strict = true;
