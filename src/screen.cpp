@@ -12,31 +12,35 @@ namespace Nepgear
 class Screen
 {
 public:
-		Screen(std::string name, void *data);
-		virtual ~Screen();
+	Screen(std::string name, void *data);
+	virtual ~Screen();
 
+	std::string name;
+
+	virtual void load(const State *ng);
+	//virtual void quit();
+
+	//virtual void focus();
+	virtual void update(double dt);
+	virtual void draw(int buffer);
+
+	virtual void input(const GameInput *gi);
+
+	void *data;
+	struct {
 		std::string name;
-
-		virtual void load(const State *ng);
-		//virtual void quit();
-
-		//virtual void focus();
-		virtual void update(double dt);
-		virtual void draw(int buffer);
-
-		virtual void input(const GameInput *gi);
-
 		void *data;
-		struct {
-				std::string name;
-				void *data;
-		} next;
+	} next;
 };
 }
 
 #endif
 
 //#include "gameinput.h"
+
+#include <ostream>
+#include <sstream>
+#include <unistd.h>
 
 namespace Nepgear
 {
@@ -55,10 +59,24 @@ Screen::~Screen()
 void Screen::load(const State *ng)
 {
 	UNUSED(ng);
-	/*
+
 	int err = 0;
-	luaL_loadstring(ng->lua, "print \"test\"");
-	err = lua_pcall(ng->lua, 0, 0, 0)
+	std::ostringstream file;
+	file << "game/" << name << ".lua";
+
+	if (access(file.str().c_str(), F_OK) == 0)
+	{
+		printf("File %s doesn't exist.\n", file.str().c_str());
+		//return;
+	}
+	else
+	{
+		printf("always with the elses!");
+	}
+
+	luaL_loadfile(ng->lua, file.str().c_str());
+
+	err = lua_pcall(ng->lua, 0, 0, 0);
 	if (err)
 	{
 		switch (err)
@@ -71,7 +89,8 @@ void Screen::load(const State *ng)
 				break;
 			default: break;
 		}
-	}*/
+		lua_pop(ng->lua, 1);
+	}
 }
 
 void Screen::update(double dt)

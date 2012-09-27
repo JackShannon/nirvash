@@ -33,7 +33,7 @@ void start_video(void *data)
 	//ml.queue.push_back("Nepgear/nepgear.dae");
 	ml.queue.push_back("monkey.dae");
 	ml.Process();
-	
+
 	// wait for the window to be created.
 	while(ng->windows.empty());
 
@@ -51,24 +51,24 @@ void start_video(void *data)
 		w->ClearCurrent();
 		return;
 	}
-	
+
 	// HACK: NVIDIA 295.20 drivers specifically doesn't wait properly.
 	if (strcmp((const char*)glGetString(GL_VERSION), "3.2.0 NVIDIA 295.20")==0)
 		ng->configuration["enable_wait_hack"] = true;
 	ng->start = true;
-	
+
 	std::vector<Nepgear::Model*> render_queue;
 
 	Nepgear::Material mat;
 	mat.load("test.glsl");
 	mat.bind();
-	
+
 	glm::mat4 view(1.0);
 	glm::mat4 projection = glm::perspective(70.0f, 1.6f, 1.0f, 1000.0f);
 
 	view = glm::translate(view, vec3(0.0f, -25.0f, -70.0f));
 	view = glm::rotate(view, -80.f, vec3(1.0, 0.0, 0.0));
-	
+
 	mat.set_uniform_vec3(
 		"LightDirection",
 		glm::normalize(glm::vec3(0.0f, 1.0f, 0.5f))
@@ -174,19 +174,13 @@ static void open_libs(lua_State *L)
 		{ "string",	luaopen_string },
 		{ "math",	luaopen_math },
 		{ "debug",	luaopen_debug },
-		//{ "io",	luaopen_io },
-		//{ "os",	luaopen_os },
-		//{ "package", luaopen_package },
 		{ NULL, NULL }
 	};
 
 	const luaL_reg *lib = libs;
 	for ( ; lib->func; lib++)
 	{
-		// open library
 		lib->func(L);
-
-		// discard any results
 		lua_settop(L, 0);
 	}
 }
@@ -259,6 +253,6 @@ int main()
 	}
 
 	glfwTerminate();
-	
+
 	return 0;
 }
