@@ -1,43 +1,4 @@
-#ifndef _NEPGEAR_SCREEN_H_
-#define _NEPGEAR_SCREEN_H_
-
-#include <string>
-//#include "gameinput.h"
-#include "state.h"
-
-class GameInput;
-
-namespace Nepgear
-{
-class Screen
-{
-public:
-	Screen(std::string name, void *data);
-	virtual ~Screen();
-
-	std::string name;
-
-	virtual void load(const State *ng);
-	//virtual void quit();
-
-	//virtual void focus();
-	virtual void update(double dt);
-	virtual void draw(int buffer);
-
-	virtual void input(const GameInput *gi);
-
-	void *data;
-	struct {
-		std::string name;
-		void *data;
-	} next;
-};
-}
-
-#endif
-
-//#include "gameinput.h"
-
+#include "screen.h"
 #include <ostream>
 #include <sstream>
 #include <unistd.h>
@@ -58,20 +19,14 @@ Screen::~Screen()
 
 void Screen::load(const State *ng)
 {
-	UNUSED(ng);
-
 	int err = 0;
 	std::ostringstream file;
 	file << "game/" << name << ".lua";
 
-	if (access(file.str().c_str(), F_OK) == 0)
+	if (access(file.str().c_str(), F_OK))
 	{
 		printf("File %s doesn't exist.\n", file.str().c_str());
-		//return;
-	}
-	else
-	{
-		printf("always with the elses!");
+		return;
 	}
 
 	luaL_loadfile(ng->lua, file.str().c_str());

@@ -12,6 +12,7 @@
 #include "utils/thread.h"
 #include "utils/logger.h"
 #include "configuration.h"
+#include "screen.h"
 
 const int num_buffers = 1;
 
@@ -56,6 +57,9 @@ void start_video(void *data)
 	if (strcmp((const char*)glGetString(GL_VERSION), "3.2.0 NVIDIA 295.20")==0)
 		ng->configuration["enable_wait_hack"] = true;
 	ng->start = true;
+
+	Nepgear::Screen scr("Base");
+	scr.load(ng);
 
 	std::vector<Nepgear::Model*> render_queue;
 
