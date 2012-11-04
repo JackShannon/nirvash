@@ -29,7 +29,8 @@ namespace Nepgear
 
 	void Window::Create(WindowFlags flags)
 	{
-		int mode = (flags.mode == WindowFlags::FullScreen) ? GLFW_FULLSCREEN : GLFW_WINDOWED;
+		int mode = (flags.mode == WindowFlags::FullScreen) ?
+			GLFW_FULLSCREEN : GLFW_WINDOWED;
 
 		if (flags.gl_major >= 3)
 		{
