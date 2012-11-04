@@ -5,7 +5,7 @@
 namespace Nepgear
 {
 	typedef void* WindowHandle;
-	
+
 	struct WindowFlags
 	{
 		int width, height;
@@ -32,13 +32,15 @@ namespace Nepgear
 		int Prepare(int major, int minor);
 		void VSync(bool);
 		void SwapBuffers();
-		
+
 		WindowHandle GetHandle();
+		const WindowFlags GetFlags();
 
 		int width, height;
 
 	protected:
 		WindowHandle m_handle;
+		WindowFlags m_flags;
 	};
 }
 

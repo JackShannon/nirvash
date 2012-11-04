@@ -16,12 +16,17 @@ namespace Nepgear
 	{
 		glfwMakeContextCurrent(NULL);
 	}
-	
+
 	WindowHandle Window::GetHandle()
 	{
 		return m_handle;
 	}
-	
+
+	const WindowFlags Window::GetFlags()
+	{
+		return m_flags;
+	}
+
 	void Window::Create(WindowFlags flags)
 	{
 		int mode = (flags.mode == WindowFlags::FullScreen) ? GLFW_FULLSCREEN : GLFW_WINDOWED;
@@ -39,6 +44,7 @@ namespace Nepgear
 			glfwWindowHint(GLFW_OPENGL_VERSION_MAJOR, flags.gl_major);
 			glfwWindowHint(GLFW_OPENGL_VERSION_MINOR, flags.gl_minor);
 		}
+		m_flags = flags;
 		m_handle = (WindowHandle)glfwCreateWindow(
 			flags.width, flags.height,
 			mode, "", (GLFWwindow)flags.homie
