@@ -42,12 +42,18 @@ public:
 	// Constructor and destructor
 	Logger(const char *sPath = NULL);
 	virtual ~Logger();
-	
+
 	// Log functions
 	void trace(const char *fmt, ...) PRINTF(2,3);
 	void debug(const char *fmt, ...) PRINTF(2,3);
 	void warn(const char *fmt, ...) PRINTF(2,3);
 	void error(const char *fmt, ...) PRINTF(2,3);
+
+	void trace(const std::string s) { trace("%s", s.c_str()); }
+	void debug(const std::string s) { debug("%s", s.c_str()); }
+	void warn(const std::string s)  { warn("%s", s.c_str());  }
+	void error(const std::string s) { error("%s", s.c_str()); }
+
 	void print_header();
 
 	void use_colors(bool flag) { m_use_colors = flag; }

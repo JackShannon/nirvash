@@ -10,6 +10,9 @@ extern "C"
 
 #include <string>
 
+namespace Nepgear
+{
+
 class Configuration
 {
 public:
@@ -24,5 +27,7 @@ public:
 private:
 	lua_State *L;
 };
+
+}
 
 #endif

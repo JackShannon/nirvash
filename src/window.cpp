@@ -62,6 +62,8 @@ namespace Nepgear
 
 	int Window::Prepare(int major, int minor)
 	{
+		// Don't bother if using GL2.
+		if (major < 3) return true;
 		gl3wInit();
 		return gl3wIsSupported(major, minor);
 	}

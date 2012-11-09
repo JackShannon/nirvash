@@ -6,7 +6,7 @@
 
 namespace Nepgear
 {
-class State;
+struct State;
 
 enum InputEventType {
 	InputEventType_Mouse,

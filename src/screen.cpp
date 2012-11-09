@@ -36,12 +36,8 @@ void Screen::load(const State *ng)
 	{
 		switch (err)
 		{
-			case LUA_ERRRUN:
-				printf("Lua: runtime error\n");
-				break;
-			case LUA_ERRMEM:
-				printf("Lua: memory allocation error\n");
-				break;
+			case LUA_ERRRUN: printf("Lua: runtime error\n"); break;
+			case LUA_ERRMEM: printf("Lua: memory allocation error\n"); break;
 			default: break;
 		}
 		lua_pop(ng->lua, 1);
@@ -53,9 +49,8 @@ void Screen::update(double dt)
 	UNUSED(dt);
 }
 
-void Screen::draw(int buffer)
+void Screen::draw()
 {
-	UNUSED(buffer);
 }
 
 void Screen::input(const GameInput *gi)

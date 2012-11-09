@@ -1,5 +1,8 @@
 #include "configuration.h"
 
+namespace Nepgear
+{
+ 
 Configuration::Configuration(std::string file)
 {
 	L = lua_open();
@@ -86,4 +89,6 @@ bool Configuration::get_boolean(std::string key, bool fallback)
 	lua_pop(L, 1);
 
 	return tmp;
+}
+
 }

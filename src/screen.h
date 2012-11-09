@@ -22,7 +22,7 @@ public:
 
 	//virtual void focus();
 	virtual void update(double dt);
-	virtual void draw(int buffer);
+	virtual void draw();
 
 	virtual void input(const GameInput *gi);
 

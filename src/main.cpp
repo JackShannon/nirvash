@@ -1,39 +1,30 @@
 #define GLM_SWIZZLE
+#include <cstring>
+#include <string>
 #include <GL/glcorearb.h>
 #include <GL/glfw3.h>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "state.h"
-#include "window.h"
-#include "resourceloader.h"
-#include "fx/postprocess.h"
-#include "material/material.h"
-#include "model/model.h"
-#include "utils/thread.h"
-#include "utils/logger.h"
 #include "configuration.h"
 #include "screen.h"
-
-const int num_buffers = 1;
+#include "state.h"
+#include "window.h"
+#include "utils/logger.h"
+#include "utils/thread.h"
 
 // Calculate FXAA alpha for a given color
-float calc_alpha(vec3 in)
+float calc_fxaa_alpha(glm::vec3 in)
 {
-	using namespace glm;
-	return dot(in, vec3(0.299, 0.587, 0.114));
+	return glm::dot(in, glm::vec3(0.299, 0.587, 0.114));
 }
-
 
 void start_video(void *data)
 {
 	Nepgear::State *ng = (Nepgear::State*)data;
 	Nepgear::Window *w;
 	Nepgear::Logger log(NULL);
-
-	Nepgear::ResourceLoader<Nepgear::Mesh> ml;
-	//ml.queue.push_back("Nepgear/nepgear.dae");
-	ml.queue.push_back("monkey.dae");
-	ml.Process();
+	log.print_header();
 
 	// wait for the window to be created.
 	while(ng->windows.empty());
@@ -41,13 +32,16 @@ void start_video(void *data)
 	w = ng->windows[0];
 
 	// Bind the OpenGL context to this thread
+	const Nepgear::WindowFlags f = w->GetFlags();
 	w->MakeCurrent();
 	w->VSync(true);
-	if (!w->Prepare(3, 2))
+	if (!w->Prepare(f.gl_major, f.gl_minor))
 	{
+		/* We shouldn't ever get here if window creation succeeded, unless
+		 * the driver lied to us when we created the window. */
 		log.warn(
-			"OpenGL 3.2 is not supported. Please check your drivers"
-			"or hardware for support."
+			"OpenGL %d.%d is not supported. Please check your drivers "
+			"or hardware for support.", f.gl_major, f.gl_minor
 		);
 		w->ClearCurrent();
 		return;
@@ -58,37 +52,16 @@ void start_video(void *data)
 		ng->configuration["enable_wait_hack"] = true;
 	ng->start = true;
 
+	std::vector<Nepgear::Screen> screen_stack;
+
 	Nepgear::Screen scr("Base");
 	scr.load(ng);
 
-	std::vector<Nepgear::Model*> render_queue;
-
-	Nepgear::Material mat;
-	mat.load("test.glsl");
-	mat.bind();
-
-	glm::mat4 view(1.0);
-	glm::mat4 projection = glm::perspective(70.0f, 1.6f, 1.0f, 1000.0f);
-
-	view = glm::translate(view, vec3(0.0f, -25.0f, -70.0f));
-	view = glm::rotate(view, -80.f, vec3(1.0, 0.0, 0.0));
-
-	mat.set_uniform_vec3(
-		"LightDirection",
-		glm::normalize(glm::vec3(0.0f, 1.0f, 0.5f))
-	);
-	mat.set_uniform_mat4("View", view);
-	mat.set_uniform_mat4("Projection", projection);
-
-	Nepgear::PostProcessEffect fxaa;
-	fxaa.init(w->width, w->height);
-	fxaa.load("fxaa.glsl");
+	screen_stack.push_back(scr);
 
 	glm::vec4 clear = glm::vec4(0.1, 0.4, 0.8, 1.0);
-	clear.a = calc_alpha(clear.rgb());
 
 	glClearColor(clear.r, clear.g, clear.b, clear.a);
-
 	glEnable(GL_DEPTH_TEST);
 
 	double now = glfwGetTime();
@@ -101,62 +74,25 @@ void start_video(void *data)
 		delta = now - then;
 		then = now;
 
-		if (ml.done)
-		{
-			// disable flag so we don't upload again.
-			ml.done = false;
-
-			auto it = ml.loaded.begin();
-			for ( ; it != ml.loaded.end(); ++it)
-			{
-				Nepgear::Model *m = new Nepgear::Model();
-				m->SetMesh(*it);
-				m->SetMaterial(&mat);
-				m->UploadMesh();
-
-				render_queue.push_back(m);
-			}
-			if (glGetError())
-			{
-				log.warn("GL error while loading resources!\n");
-				break;
-			}
-		}
-
-		fxaa.bind();
-
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-		// TODO: working per-mesh materials!
-		mat.bind();
+		for (size_t i = 0; i < screen_stack.size(); i++)
+			screen_stack[i].update(delta);
 
-		auto it = render_queue.begin();
-		for ( ; it != render_queue.end(); ++it)
-		{
-			(*it)->Update(delta);
-			for (int i = 0; i<num_buffers; i++)
-				(*it)->Draw(i);
-		}
-		fxaa.unbind();
-
-		fxaa.draw();
+		for (size_t i = 0; i < screen_stack.size(); i++)
+			screen_stack[i].draw();
 
 		w->SwapBuffers();
 
-		// HACK: glfwWaitEvents() workaround.
+		// This only needs to happen for the first update!
 		if (ng->configuration["enable_wait_hack"])
 		{
 			glfwPollEvents();
-			// This only needs to happen for the first update!
 			ng->configuration["enable_wait_hack"] = false;
 		}
 	}
 
-	auto it = render_queue.begin();
-	for ( ; it != render_queue.end(); ++it)
-	{
-		delete *it;
-	}
+	screen_stack.clear();
 
 	w->ClearCurrent();
 }
@@ -165,8 +101,7 @@ void start_audio(void *data)
 {
 	Nepgear::State *ng = (Nepgear::State*)data;
 
-	// silence warning. terminate thread early
-	while (ng->running) break;
+	UNUSED(ng);
 }
 
 static void open_libs(lua_State *L)
@@ -181,8 +116,7 @@ static void open_libs(lua_State *L)
 		{ NULL, NULL }
 	};
 
-	const luaL_reg *lib = libs;
-	for ( ; lib->func; lib++)
+	for (const luaL_reg *lib = libs; lib->func; lib++)
 	{
 		lib->func(L);
 		lua_settop(L, 0);
@@ -191,7 +125,8 @@ static void open_libs(lua_State *L)
 
 void init_game(Nepgear::State *ng)
 {
-	Configuration conf("config.lua");
+	Nepgear::Configuration conf("config.lua");
+	Nepgear::Logger log(NULL);
 
 	ng->lua = lua_open();
 
@@ -200,11 +135,35 @@ void init_game(Nepgear::State *ng)
 	Nepgear::Window w;
 	Nepgear::WindowFlags f;
 	{
+		std::string renderer = conf.get_string("Renderer", "OpenGL");
+		int major = 2;
+		int minor = 1;	
+
+		/* Parse OpenGL major/minor version out of the preference.
+		 * Format: OpenGL_X.Y */
+		size_t pos = renderer.find_first_of("_");
+		if (pos != std::string::npos)
+		{
+			std::string version = renderer.substr(pos+1);
+			std::string upper, lower;
+			log.debug("Requested OpenGL version " + version);
+
+			pos = version.find_first_of(".");
+
+			upper = version.substr(0, pos);
+			lower = version.substr(pos+1);
+
+			major = atoi(upper.c_str());
+			minor = atoi(lower.c_str());
+		}
+		
 		f.width = conf.get_integer("DisplayWidth", 1280);
 		f.height = conf.get_integer("DisplayHeight", 720);
-		f.gl_major = 3;
-		f.gl_minor = 2;
-		f.strict = true;
+
+		f.gl_major = major;
+		f.gl_minor = minor;
+
+		f.strict = major >= 3;
 		f.mode = Nepgear::WindowFlags::Windowed;
 		f.homie = NULL;
 	}
@@ -212,8 +171,9 @@ void init_game(Nepgear::State *ng)
 
 	ng->windows.push_back(&w);
 
-	// wait for configuration to be worked out in the GL thread
-	while (!ng->start);
+	// wait a moment for configuration to be worked out in the GL thread
+	while (!ng->start)
+		tthread::this_thread::sleep_for(tthread::chrono::milliseconds(2));
 
 	while (ng->running)
 	{
